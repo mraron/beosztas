@@ -1,0 +1,12 @@
+e:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\ID.exe.config
+e:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\ID.exe
+e:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\ID.pdb
+e:\Users\Documents\Visual Studio 2015\Projects\ID\ID\obj\Debug\ID.csprojResolveAssemblyReference.cache
+e:\Users\Documents\Visual Studio 2015\Projects\ID\ID\obj\Debug\ID.exe
+e:\Users\Documents\Visual Studio 2015\Projects\ID\ID\obj\Debug\ID.pdb
+E:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\PdfSharp.Charting.dll
+E:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\PdfSharp.dll
+E:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\PdfSharp.xml
+E:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\PdfSharp.Charting.xml
+E:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\de\PdfSharp.resources.dll
+E:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\de\PdfSharp.Charting.resources.dll
