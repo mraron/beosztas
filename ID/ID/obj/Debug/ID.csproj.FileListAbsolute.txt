@@ -10,3 +10,8 @@ E:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\PdfSharp.xml
 E:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\PdfSharp.Charting.xml
 E:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\de\PdfSharp.resources.dll
 E:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\de\PdfSharp.Charting.resources.dll
+e:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\System.Net.Http.Extensions.dll
+e:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\System.Net.Http.Primitives.dll
+e:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\System.Net.Http.Extensions.xml
+e:\Users\Documents\Visual Studio 2015\Projects\ID\ID\bin\Debug\System.Net.Http.Primitives.xml
+e:\Users\Documents\Visual Studio 2015\Projects\ID\ID\obj\Debug\ID.csproj.App.config
