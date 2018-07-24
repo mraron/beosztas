@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>beosztás admin</title>
+    <link rel="stylesheet" href="/static/ng-admin.min.css">
+</head>
+<body ng-app="beosztas">
+<div ui-view="ng-admin"></div>
+<script src="/static/ng-admin.min.js"></script>
+<script type="text/javascript">
+    var beosztas = angular.module('beosztas', ['ng-admin']);
+    beosztas.config(['NgAdminConfigurationProvider', function(NgAdminConfigurationProvider) {
+        var nga = NgAdminConfigurationProvider;
+        // create an admin application
+        var admin = nga.application('beosztás admin').baseApiUrl("http://localhost:8080/admin/");
+/*
+        var Student = nga.entity('students').identifier(nga.field('Id'));
+        Student.listView().fields([
+            nga.field('Id'),
+            nga.field('Name'),
+            nga.field('OM'),
+            nga.field('ClassId')
+        ]).listActions(['edit']);
+
+        Student.creationView().fields([
+            nga.field('Name'),
+            nga.field('OM'),
+            nga.field('ClassId')
+        ]);
+
+        Student.editionView().fields(Student.creationView().fields());
+*/
+        var Class = nga.entity("classes").identifier(nga.field('Id'));;
+
+        Class.listView().fields([
+            nga.field('Id'),
+            nga.field('Index', 'number'),
+            nga.field('Name')
+        ]).listActions(['edit']);
+
+        Class.creationView().fields([
+           nga.field('Index', 'number').validation({required: true}),
+           nga.field('Name').validation({required: true})
+        ]);
+
+        Class.editionView().fields(Class.creationView().fields());
+
+  //      admin.addEntity(Student)
+        admin.addEntity(Class)
+
+        nga.configure(admin);
+    }]);
+</script>
+</body>
+</html>
