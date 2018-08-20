@@ -1,0 +1,9 @@
+{{template "header" .}}
+
+<h4>A "{{.Data.Event.Name}}" eseményben a "{{.Data.Place.Name}}" helyszínen résztvevők</h4>
+<ul>
+{{range $i := .Data.Participants}}
+    <li>{{$i.Student.Name}} ({{$i.Student.Class.Name}})</li>
+{{end}}
+</ul>
+{{template "footer" .}}

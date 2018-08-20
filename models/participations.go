@@ -1,46 +1,43 @@
 package models
 
-import (
-	"database/sql/driver"
-	"strconv"
-	"errors"
-)
+import "github.com/jinzhu/gorm"
 
 type Participation struct {
-	Id int
-	Student *Student `db:"studentId"`
-	Place *Place `db:"p	laceId"`
+	gorm.Model
+	StudentId int `db:"studentId"`
+	PlaceId int `db:"placeId"`
 }
 
-func (s Participation) Value() (driver.Value, error) {
-	return driver.Value(s.Id), nil
+func ParticipationAPIGet(db *gorm.DB, _filters map[string]string, _page int, _perPage int, _sortDir string, _sortField string) ([]Participation, error) {
+	ans := make([]Participation, 0)
+
+	tmp := db.Order(_sortField+" "+_sortDir).Limit(_perPage).Offset(_perPage*(_page-1))
+	for column, value := range _filters {
+		tmp = tmp.Where(column+" like ?", "%"+value+"%")
+	}
+
+	err := tmp.Find(&ans).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return ans, nil
 }
 
-func (s *Participation) Scan(value interface{}) error {
-	if value == nil {
-		return errors.New("Can't scan student from nil")
-	}
+func (p *Participation) Student() *Student {
+	student := new(Student)
+	student.ID = uint(p.StudentId)
 
-	var (
-		id int
-		err error
-	)
-
-	switch value.(type) {
-	case int64:
-		id = int(value.(int64))
-	case int:
-		id = value.(int)
-	case []uint8:
-		if id, err = strconv.Atoi(string(value.([]uint8))); err != nil {
-			return err
-		}
-	}
-
-	row := db.QueryRow("SELECT * FROM participations WHERE id=?", id)
-	if err = row.Scan(&s.Id, &s.Student, &s.Place); err != nil {
-		return err
-	}
-
-	return nil
+	db.First(student)
+	return student
 }
+
+
+func (p *Participation) Place() *Place {
+	place := new(Place)
+	place.ID = uint(p.PlaceId)
+
+	db.First(place)
+	return place
+}
+

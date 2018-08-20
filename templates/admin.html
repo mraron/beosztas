@@ -11,42 +11,117 @@
     var beosztas = angular.module('beosztas', ['ng-admin']);
     beosztas.config(['NgAdminConfigurationProvider', function(NgAdminConfigurationProvider) {
         var nga = NgAdminConfigurationProvider;
-        // create an admin application
         var admin = nga.application('beosztás admin').baseApiUrl("http://localhost:8080/admin/");
-/*
-        var Student = nga.entity('students').identifier(nga.field('Id'));
-        Student.listView().fields([
-            nga.field('Id'),
-            nga.field('Name'),
-            nga.field('OM'),
-            nga.field('ClassId')
-        ]).listActions(['edit']);
 
-        Student.creationView().fields([
-            nga.field('Name'),
-            nga.field('OM'),
-            nga.field('ClassId')
-        ]);
-
-        Student.editionView().fields(Student.creationView().fields());
-*/
-        var Class = nga.entity("classes").identifier(nga.field('Id'));;
+        var Class = nga.entity("classes").identifier(nga.field('ID'));
 
         Class.listView().fields([
-            nga.field('Id'),
-            nga.field('Index', 'number'),
-            nga.field('Name')
+            nga.field('ID'),
+            nga.field('Index', 'number').label('Sorszám'),
+            nga.field('Name').label('Név')
         ]).listActions(['edit']);
 
         Class.creationView().fields([
-           nga.field('Index', 'number').validation({required: true}),
-           nga.field('Name').validation({required: true})
+           nga.field('Index', 'number').validation({required: true}).label('Sorszám'),
+           nga.field('Name').validation({required: true}).label('Név')
         ]);
 
         Class.editionView().fields(Class.creationView().fields());
-
-  //      admin.addEntity(Student)
         admin.addEntity(Class)
+
+
+        var Student = nga.entity('students').identifier(nga.field('ID'));
+        Student.listView().fields([
+            nga.field('ID'),
+            nga.field('Name').label('Név'),
+            nga.field('OM').label('OM azonosító'),
+            nga.field('ClassId', 'reference').targetEntity(Class).label('Osztály').targetField(nga.field('Name')) //, 'reference').label('Osztály').targetEntity(Class)
+        ]).listActions(['edit']);
+
+        Student.creationView().fields([
+            nga.field('Name').label('Név'),
+            nga.field('OM').label('OM azonosító'),
+            nga.field('ClassId', 'reference').targetEntity(Class).label('Osztály').targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true)
+        ]);
+
+        Student.editionView().fields(Student.creationView().fields());
+        admin.addEntity(Student)
+
+
+        var Event = nga.entity("events").identifier(nga.field('ID'));
+
+        Event.listView().fields([
+            nga.field('ID'),
+            nga.field('Name').label('Név'),
+            nga.field('Comment').label('Leírás'),
+            nga.field('StartDate').label('Kezdet'),
+            nga.field('EndDate').label('Befejezés'),
+            nga.field('Public', 'boolean').label('Publikus')
+        ]).listActions(['edit']);
+
+        Event.creationView().fields([
+            nga.field('Name').label('Név'),
+            nga.field('Comment').label('Leírás'),
+            nga.field('StartDate', 'datetime').label('Kezdet'),
+            nga.field('EndDate', 'datetime').label('Befejezés'),
+            nga.field('Public', 'boolean').label('Publikus').choices([ { value: true, label: 'Publikus' }, { value: false, label: 'Nem publikus' } ])
+        ]);
+
+        Event.editionView().fields(Event.creationView().fields());
+
+        admin.addEntity(Event)
+
+
+        var Place = nga.entity("places").identifier(nga.field('ID'));
+
+        Place.listView().fields([
+            nga.field('ID'),
+            nga.field('Name').label('Név'),
+            nga.field('Location').label('Hely'),
+            nga.field('EventId', 'reference').label('Esemény').targetEntity(Event).targetField(nga.field('Name')),
+            nga.field('PeopleCountLimit').label('Maximum jelentkezők száma')
+
+        ]).listActions(['edit']);
+
+        Place.creationView().fields([
+            nga.field('Name', 'string').label('Név'),
+            nga.field('Location', 'string').label('Hely'),
+            nga.field('EventId', 'reference').label('Esemény').targetEntity(Event).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),
+            nga.field('PeopleCountLimit', 'number').label('Maximum jelentkezők száma')
+        ]);
+
+        Place.editionView().fields(Place.creationView().fields());
+
+        admin.addEntity(Place)
+
+
+
+        var Participation = nga.entity("participations").identifier(nga.field('ID'));
+
+        Participation.listView().fields([
+            nga.field('ID'),
+            nga.field('StudentId', 'reference').label('Tanuló').targetEntity(Student).targetField(nga.field('Name')),
+            nga.field('PlaceId', 'reference').label('Helyszín').targetEntity(Place).targetField(nga.field('Name'))
+
+        ]).listActions(['edit']);
+
+        Participation.creationView().fields([
+            nga.field('StudentId', 'reference').label('Tanuló').targetEntity(Student).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),
+            nga.field('PlaceId', 'reference').label('Helyszín').targetEntity(Place).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true)
+        ]);
+
+        Participation.editionView().fields(Participation.creationView().fields());
+
+        admin.addEntity(Participation)
+
+        /*Event.creationView().fields([
+            nga.field('Index', 'number').validation({required: true}),
+            nga.field('Name').validation({required: true})
+        ]);*/
+
+        //Event.editionView().fields(Class.creationView().fields());
+
+
 
         nga.configure(admin);
     }]);

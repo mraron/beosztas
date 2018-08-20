@@ -1,50 +1,35 @@
 package models
 
 import (
-	"database/sql/driver"
-	"strconv"
-	"errors"
+	"github.com/jinzhu/gorm"
 )
 
 type Place struct {
-	Id int
-	Name string
-	Event *Event `db:"eventId"`
-	PeopleCountLimit int
-	ClassCountLimit int
-	LowerClassLimit int
-	UpperClassLimit int
+	gorm.Model
+	Name             string `gorm:"column:name"`
+	Location string
+	PeopleCountLimit int `gorm:"column:peopleCountLimit"`
+	EventId int  `gorm:"column:eventId"`
 }
 
-func (s Place) Value() (driver.Value, error) {
-	return driver.Value(s.Id), nil
+func PlaceAPIGet(db *gorm.DB, _filters map[string]string, _page int, _perPage int, _sortDir string, _sortField string) ([]Place, error) {
+	ans := make([]Place, 0)
+
+	tmp := db.Order(_sortField+" "+_sortDir).Limit(_perPage).Offset(_perPage*(_page-1))
+	for column, value := range _filters {
+		tmp = tmp.Where(column+" like ?", "%"+value+"%")
+	}
+
+	err := tmp.Find(&ans).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return ans, nil
 }
 
-func (s *Place) Scan(value interface{}) error {
-	if value == nil {
-		return errors.New("Can't scan student from nil")
-	}
-
-	var (
-		id int
-		err error
-	)
-
-	switch value.(type) {
-	case int64:
-		id = int(value.(int64))
-	case int:
-		id = value.(int)
-	case []uint8:
-		if id, err = strconv.Atoi(string(value.([]uint8))); err != nil {
-			return err
-		}
-	}
-
-	row := db.QueryRow("SELECT * FROM places WHERE id=?", id)
-	if err = row.Scan(&s.Id, &s.Name, &s.Event, &s.PeopleCountLimit, &s.ClassCountLimit, &s.LowerClassLimit, &s.UpperClassLimit); err != nil {
-		return err
-	}
-
-	return nil
+func (p *Place) GetPeopleCount() int {
+	count := 0
+	db.Model(new(Participation)).Where("place_id = ?", p.ID).Count(&count)
+	return count
 }

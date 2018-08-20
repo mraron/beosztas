@@ -2,50 +2,32 @@ package models
 
 import (
 	"time"
-	"database/sql"
-	"database/sql/driver"
-	"strconv"
-	"errors"
+	"github.com/jinzhu/gorm"
 )
 
 type Event struct {
-	Id int
+	gorm.Model
 	Name string
-	Comment sql.NullString
+	Comment string
 	StartDate time.Time
 	EndDate time.Time
 	Public bool
 }
 
-func (s Event) Value() (driver.Value, error) {
-	return driver.Value(s.Id), nil
+func EventAPIGet(db *gorm.DB, _filters map[string]string, _page int, _perPage int, _sortDir string, _sortField string) ([]Event, error) {
+	ans := make([]Event, 0)
+
+	tmp := db.Order(_sortField+" "+_sortDir).Limit(_perPage).Offset(_perPage*(_page-1))
+	for column, value := range _filters {
+		tmp = tmp.Where(column+" like ?", "%"+value+"%")
+	}
+
+	err := tmp.Find(&ans).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return ans, nil
 }
 
-func (s *Event) Scan(value interface{}) error {
-	if value == nil {
-		return errors.New("Can't scan student from nil")
-	}
 
-	var (
-		id int
-		err error
-	)
-
-	switch value.(type) {
-	case int64:
-		id = int(value.(int64))
-	case int:
-		id = value.(int)
-	case []uint8:
-		if id, err = strconv.Atoi(string(value.([]uint8))); err != nil {
-			return err
-		}
-	}
-
-	row := db.QueryRow("SELECT * FROM events WHERE id=?", id)
-	if err = row.Scan(&s.Id, &s.Name, &s.Comment, &s.StartDate, &s.EndDate, &s.Public); err != nil {
-		return err
-	}
-
-	return nil
-}

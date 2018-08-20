@@ -1,0 +1,25 @@
+{{template "header" .}}
+<h4>Helyszínek a "{{.Data.Event.Name}}" eseményhez</h4>
+{{range $i := .Data.Places}}
+<div class="panel panel-default">
+    <div class="panel-heading">{{$i.Name}}</div>
+    <div class="panel-body">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-2"><span class="glyphicon glyphicon-screenshot"></span> Hely:</div>
+                <div class="col-md-10">{{$i.Location}} <br><br></div>
+            </div>
+            <div class="row">
+                <div class="col-md-2"><span class="glyphicon glyphicon-signal"></span> Telítettség:</div>
+                <div class="col-md-10">{{$i.GetPeopleCount}} / {{$i.PeopleCountLimit}}<br><br></div>
+            </div>
+
+            <div class="pull-right">
+                <a href="/participants/{{$i.EventId}}/{{$i.ID}}" type="button" class="btn btn-primary">Eddig jelentkezők</a>
+                <a href="{{if lt $i.GetPeopleCount $i.PeopleCountLimit}}/join/{{$i.EventId}}/{{$i.ID}}{{else}}#{{end}}" type="button" class="btn btn-success" {{if lt $i.GetPeopleCount $i.PeopleCountLimit}}{{else}}disabled{{end}}>Kiválasztás</a>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+{{template "footer" .}}

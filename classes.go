@@ -13,12 +13,12 @@ func getClass(c echo.Context) error {
 
 	class := new(models.Class)
 
-	class.Id, err = strconv.Atoi(c.Param("id"))
+	class.ID, err = parseUint(c.Param("id"))
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	class.Scan(class.Id)
+	db.Where("id = ?", class.ID).First(class)
 
 	return c.JSON(http.StatusOK, class)
 }
@@ -30,7 +30,7 @@ func getClasses(c echo.Context) error {
 		return err
 	}
 
-	lst, err := models.ClassAPIGet(db, data._page, data._perPage, data._sortDir, data._sortField)
+	lst, err := models.ClassAPIGet(db, data._filters, data._page, data._perPage, data._sortDir, data._sortField)
 	if err != nil {
 		fmt.Println(err, "models")
 		return err
@@ -49,13 +49,13 @@ func putClass(c echo.Context) error {
 	}
 
 
-	class.Id, err = strconv.Atoi(c.Param("id"))
+	class.ID, err = parseUint(c.Param("id"))
 	if err != nil {
 		fmt.Println("wut2", err)
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	err = class.Update(db)
+	err = db.Save(class).Error
 	if err != nil {
 		fmt.Println("wut3", err)
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -73,7 +73,7 @@ func postClass(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	err = class.Insert(db)
+	err = db.Create(class).Error
 	if err != nil {
 		fmt.Println("wut3", err)
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -89,12 +89,13 @@ func deleteClass(c echo.Context) error {
 	}
 
 	class := new(models.Class)
-	err = class.Scan(id)
+	err = db.Where("id = ?", id).First(class).Error
+
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	err = class.Delete(db)
+	err = db.Delete(class).Error
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
