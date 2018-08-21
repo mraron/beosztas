@@ -1,0 +1,7 @@
+{
+  "databasename": "beosztas.db",
+  "hostname": "localhost:8080",
+  "port": "8080",
+  "admin_user": "fmg",
+  "admin_password": "cooplugosviz"
+}

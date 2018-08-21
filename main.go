@@ -14,8 +14,16 @@ import (
 	"fmt"
 	"encoding/json"
 	"time"
+	"os"
 )
 
+var (
+	HOSTNAME = ""
+	DATABASENAME = ""
+	PORT = ""
+	ADMIN_USER = ""
+	ADMIN_PASSWORD = ""
+)
 
 type Template struct {
 	templates *template.Template
@@ -39,7 +47,8 @@ var db *gorm.DB
 func connectToDB() {
 	var err error
 
-	db, err = gorm.Open("sqlite3", "beosztas.db")
+	fmt.Println(DATABASENAME, "!!!!!!!!!!")
+	db, err = gorm.Open("sqlite3", DATABASENAME)
 	if err != nil {
 		panic(err)
 	}
@@ -99,7 +108,36 @@ func parseUint(str string) (uint, error) {
 	return uint(res), nil
 }
 
+func loadConfig() {
+	f, err := os.Open("config.json")
+	if err != nil {
+		panic(err)
+	}
+
+	config := struct {
+		Databasename string
+		Hostname string
+		Port string
+		Admin_user string
+		Admin_password string
+	}{"","", "", "", ""}
+
+	d := json.NewDecoder(f)
+	err = d.Decode(&config)
+	if err != nil {
+		panic(err)
+	}
+
+	DATABASENAME = config.Databasename
+	HOSTNAME = config.Hostname
+	PORT = config.Port
+	ADMIN_USER = config.Admin_user
+	ADMIN_PASSWORD = config.Admin_password
+}
+
 func main() {
+	loadConfig()
+
 	connectToDB()
 	models.SetDB(db)
 
@@ -338,14 +376,14 @@ func main() {
 
 
 	admin := e.Group("/admin", middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
-		if username == "admin" && password == "admin" {
+		if username == ADMIN_USER && password == ADMIN_PASSWORD {
 			return true, nil
 		}
 		return false, nil
 	}))
 
 	admin.GET("/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "admin.html", nil)
+		return c.Render(http.StatusOK, "admin.html", HOSTNAME)
 	})
 
 	adminClasses := admin.Group("/classes")
@@ -383,5 +421,5 @@ func main() {
 	adminParticipations.POST("", postParticipation)
 	adminParticipations.DELETE("/:id", deleteParticipation)
 
-	panic(e.Start(":8080"))
+	panic(e.Start(":"+PORT))
 }

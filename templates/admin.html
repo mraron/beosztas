@@ -11,9 +11,9 @@
     var beosztas = angular.module('beosztas', ['ng-admin']);
     beosztas.config(['NgAdminConfigurationProvider', function(NgAdminConfigurationProvider) {
         var nga = NgAdminConfigurationProvider;
-        var admin = nga.application('beosztás admin').baseApiUrl("http://localhost:8080/admin/");
+        var admin = nga.application('beosztás admin').baseApiUrl("http://{{.Data}}/admin/");
 
-        var Class = nga.entity("classes").identifier(nga.field('ID'));
+        var Class = nga.entity("classes").identifier(nga.field('ID')).label("Osztályok");
 
         Class.listView().fields([
             nga.field('ID'),
@@ -30,7 +30,7 @@
         admin.addEntity(Class)
 
 
-        var Student = nga.entity('students').identifier(nga.field('ID'));
+        var Student = nga.entity('students').identifier(nga.field('ID')).label("Tanulók");
         Student.listView().fields([
             nga.field('ID'),
             nga.field('Name').label('Név'),
@@ -48,7 +48,7 @@
         admin.addEntity(Student)
 
 
-        var Event = nga.entity("events").identifier(nga.field('ID'));
+        var Event = nga.entity("events").identifier(nga.field('ID')).label("Események");
 
         Event.listView().fields([
             nga.field('ID'),
@@ -72,7 +72,7 @@
         admin.addEntity(Event)
 
 
-        var Place = nga.entity("places").identifier(nga.field('ID'));
+        var Place = nga.entity("places").identifier(nga.field('ID')).label("Helyszínek");
 
         Place.listView().fields([
             nga.field('ID'),
@@ -96,7 +96,7 @@
 
 
 
-        var Participation = nga.entity("participations").identifier(nga.field('ID'));
+        var Participation = nga.entity("participations").identifier(nga.field('ID')).label("Részvételek");
 
         Participation.listView().fields([
             nga.field('ID'),
