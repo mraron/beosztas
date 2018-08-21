@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
+	"fmt"
 )
 
 type Student struct {
@@ -11,12 +12,14 @@ type Student struct {
 	ClassId int `gorm:"column:classId"`
 }
 
-func StudentAPIGet(db *gorm.DB, _filters map[string]string, _page int, _perPage int, _sortDir string, _sortField string) ([]Student, error) {
+func StudentAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int, _perPage int, _sortDir string, _sortField string) ([]Student, error) {
 	ans := make([]Student, 0)
 
 	tmp := db.Order(_sortField+" "+_sortDir).Limit(_perPage).Offset(_perPage*(_page-1))
+	fmt.Println("SHALAL")
+
 	for column, value := range _filters {
-		tmp = tmp.Where(column+" like ?", "%"+value+"%")
+		tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
 	}
 
 	err := tmp.Find(&ans).Error

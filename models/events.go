@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 	"github.com/jinzhu/gorm"
+	"fmt"
 )
 
 type Event struct {
@@ -14,12 +15,13 @@ type Event struct {
 	Public bool
 }
 
-func EventAPIGet(db *gorm.DB, _filters map[string]string, _page int, _perPage int, _sortDir string, _sortField string) ([]Event, error) {
+func EventAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int, _perPage int, _sortDir string, _sortField string) ([]Event, error) {
 	ans := make([]Event, 0)
 
 	tmp := db.Order(_sortField+" "+_sortDir).Limit(_perPage).Offset(_perPage*(_page-1))
+
 	for column, value := range _filters {
-		tmp = tmp.Where(column+" like ?", "%"+value+"%")
+		tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
 	}
 
 	err := tmp.Find(&ans).Error
@@ -29,5 +31,6 @@ func EventAPIGet(db *gorm.DB, _filters map[string]string, _page int, _perPage in
 
 	return ans, nil
 }
+
 
 

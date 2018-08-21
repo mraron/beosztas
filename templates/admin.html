@@ -19,12 +19,32 @@
             nga.field('ID'),
             nga.field('Index', 'number').label('Sorszám'),
             nga.field('Name').label('Név')
-        ]).listActions(['edit']);
+        ]).listActions(['edit', 'show']);
 
         Class.creationView().fields([
            nga.field('Index', 'number').validation({required: true}).label('Sorszám'),
            nga.field('Name').validation({required: true}).label('Név')
         ]);
+        Class.showView().fields([
+            //...
+            nga.field('ID'),
+            nga.field('Index', 'number').label('Sorszám'),
+            nga.field('Name').label('Név'),
+            nga.field('Students', 'referenced_list')
+                    .targetEntity(nga.entity('students').identifier(nga.field('ID')))
+                    .targetReferenceField('ClassId')
+                    .targetFields([
+                        nga.field('ID'),
+                        nga.field('Name'),
+                        nga.field('OM'),
+                        nga.field('ClassId', 'reference').targetEntity(Class).label('Osztály').targetField(nga.field('Name')) //, 'reference').label('Osztály').targetEntity(Class)
+                    ])
+                    .sortField('Name')
+                    .sortDir('DESC')
+                    .listActions(['edit']).label('Tanulók'),
+
+        ])
+
 
         Class.editionView().fields(Class.creationView().fields());
         admin.addEntity(Class)
@@ -36,7 +56,11 @@
             nga.field('Name').label('Név'),
             nga.field('OM').label('OM azonosító'),
             nga.field('ClassId', 'reference').targetEntity(Class).label('Osztály').targetField(nga.field('Name')) //, 'reference').label('Osztály').targetEntity(Class)
-        ]).listActions(['edit']);
+        ]).listActions(['edit']).filters([
+            nga.field('Name').label('Név'),
+            nga.field('OM').label('OM azonosító'),
+            nga.field('ClassId', 'reference').targetEntity(Class).label('Osztály').targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true)
+        ]);
 
         Student.creationView().fields([
             nga.field('Name').label('Név'),
@@ -81,7 +105,12 @@
             nga.field('EventId', 'reference').label('Esemény').targetEntity(Event).targetField(nga.field('Name')),
             nga.field('PeopleCountLimit').label('Maximum jelentkezők száma')
 
-        ]).listActions(['edit']);
+        ]).listActions(['edit']).filters([
+            nga.field('Name', 'string').label('Név'),
+            nga.field('Location', 'string').label('Hely'),
+            nga.field('EventId', 'reference').label('Esemény').targetEntity(Event).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),
+            nga.field('PeopleCountLimit', 'number').label('Maximum jelentkezők száma')
+        ]);
 
         Place.creationView().fields([
             nga.field('Name', 'string').label('Név'),
@@ -103,7 +132,10 @@
             nga.field('StudentId', 'reference').label('Tanuló').targetEntity(Student).targetField(nga.field('Name')),
             nga.field('PlaceId', 'reference').label('Helyszín').targetEntity(Place).targetField(nga.field('Name'))
 
-        ]).listActions(['edit']);
+        ]).listActions(['edit']).filters([
+            nga.field('StudentId', 'reference').label('Tanuló').targetEntity(Student).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),
+            nga.field('PlaceId', 'reference').label('Helyszín').targetEntity(Place).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true)
+        ]);
 
         Participation.creationView().fields([
             nga.field('StudentId', 'reference').label('Tanuló').targetEntity(Student).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),

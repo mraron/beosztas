@@ -29,7 +29,7 @@ func getStudents(c echo.Context) error {
 		fmt.Println(err)
 		return err
 	}
-
+	fmt.Println("ajaj\n!!!!!!!!!!!!!!!\n", data._filters)
 	lst, err := models.StudentAPIGet(db, data._filters, data._page, data._perPage, data._sortDir, data._sortField)
 	if err != nil {
 		return err

@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
+	"fmt"
 )
 
 type Place struct {
@@ -12,12 +13,13 @@ type Place struct {
 	EventId int  `gorm:"column:eventId"`
 }
 
-func PlaceAPIGet(db *gorm.DB, _filters map[string]string, _page int, _perPage int, _sortDir string, _sortField string) ([]Place, error) {
+func PlaceAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int, _perPage int, _sortDir string, _sortField string) ([]Place, error) {
 	ans := make([]Place, 0)
 
 	tmp := db.Order(_sortField+" "+_sortDir).Limit(_perPage).Offset(_perPage*(_page-1))
+
 	for column, value := range _filters {
-		tmp = tmp.Where(column+" like ?", "%"+value+"%")
+		tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
 	}
 
 	err := tmp.Find(&ans).Error
@@ -27,6 +29,7 @@ func PlaceAPIGet(db *gorm.DB, _filters map[string]string, _page int, _perPage in
 
 	return ans, nil
 }
+
 
 func (p *Place) GetPeopleCount() int {
 	count := 0

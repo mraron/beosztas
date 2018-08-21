@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"./models"
 	"github.com/jinzhu/gorm"
-	"fmt"
 	"encoding/json"
 	"time"
 	"os"
@@ -47,7 +46,6 @@ var db *gorm.DB
 func connectToDB() {
 	var err error
 
-	fmt.Println(DATABASENAME, "!!!!!!!!!!")
 	db, err = gorm.Open("sqlite3", DATABASENAME)
 	if err != nil {
 		panic(err)
@@ -62,7 +60,7 @@ func connectToDB() {
 }
 
 type paginationData struct {
-	_filters map[string]string
+	_filters map[string]interface{}
 	_page      int
 	_perPage   int
 	_sortDir   string
@@ -91,10 +89,9 @@ func parsePaginationData(c echo.Context) (*paginationData, error) {
 	}
 
 	_filters := c.QueryParam("_filters")
-	res._filters = make(map[string]string)
+	res._filters = make(map[string]interface{})
 
-	json.Unmarshal([]byte(_filters), &res._filters)
-
+	err = json.Unmarshal([]byte(_filters), &res._filters)
 	return res, nil
 }
 
@@ -143,8 +140,7 @@ func main() {
 
 	st := new(models.Student)
 	db.First(st)
-	fmt.Println(st)
-
+	
 	e := echo.New()
 
 	e.Use(middleware.Logger())
@@ -239,7 +235,7 @@ func main() {
 		}
 
 		participations := make([]models.Participation, 0)
-		err = db.Where("place_id = ?", place.ID).Find(&participations).Error
+		err = db.Where("placeId = ?", place.ID).Find(&participations).Error
 		if err != nil {
 			panic(err)
 		}
@@ -343,7 +339,7 @@ func main() {
 			participation.PlaceId = int(place.ID)
 
 			ps := make([]models.Participation, 0)
-			db.Where("student_id = ?", student.ID).First(&ps)
+			db.Where("studentId = ?", student.ID).First(&ps)
 			existsInThisEvent := false
 
 			for _, val := range ps {
