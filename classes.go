@@ -26,15 +26,16 @@ func getClass(c echo.Context) error {
 func getClasses(c echo.Context) error {
 	data, err := parsePaginationData(c)
 	if err != nil {
-		fmt.Println(err)
-		return err
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	lst, err := models.ClassAPIGet(db, data._filters, data._page, data._perPage, data._sortDir, data._sortField)
 	if err != nil {
-		fmt.Println(err, "models")
-		return err
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
+
+	cnt, _ := models.ClassAPIGetCount(db, data._filters, data._page, data._perPage, data._sortDir, data._sortField)
+	c.Response().Header().Add("X-Total-Count", strconv.Itoa(cnt))
 
 	return c.JSON(http.StatusOK, lst)
 }

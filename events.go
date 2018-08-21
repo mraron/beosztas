@@ -4,7 +4,6 @@ import (
 	"github.com/labstack/echo"
 	"net/http"
 	"strconv"
-	"fmt"
 	"./models"
 )
 
@@ -26,14 +25,16 @@ func getEvent(c echo.Context) error {
 func getEvents(c echo.Context) error {
 	data, err := parsePaginationData(c)
 	if err != nil {
-		fmt.Println(err)
-		return err
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	lst, err := models.EventAPIGet(db, data._filters, data._page, data._perPage, data._sortDir, data._sortField)
 	if err != nil {
-		return err
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
+
+	cnt, _ := models.EventAPIGetCount(db, data._filters, data._page, data._perPage, data._sortDir, data._sortField)
+	c.Response().Header().Add("X-Total-Count", strconv.Itoa(cnt))
 
 	return c.JSON(http.StatusOK, lst)
 }

@@ -28,6 +28,22 @@ func ParticipationAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int
 	return ans, nil
 }
 
+func ParticipationAPIGetCount(db *gorm.DB, _filters map[string]interface{}, _page int, _perPage int, _sortDir string, _sortField string) (int, error) {
+	ans := 0
+
+	tmp := db.Model(&Participation{}).Order(_sortField+" "+_sortDir)
+
+	for column, value := range _filters {
+		tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
+	}
+
+	err := tmp.Count(&ans).Error
+	if err != nil {
+		return -1, err
+	}
+
+	return ans, nil
+}
 
 func (p *Participation) Student() *Student {
 	student := new(Student)

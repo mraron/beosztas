@@ -140,7 +140,7 @@ func main() {
 
 	st := new(models.Student)
 	db.First(st)
-	
+
 	e := echo.New()
 
 	e.Use(middleware.Logger())
