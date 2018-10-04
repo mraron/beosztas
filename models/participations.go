@@ -7,8 +7,8 @@ import (
 
 type Participation struct {
 	gorm.Model
-	StudentId int  `gorm:"column:studentId"`
-	PlaceId int  `gorm:"column:placeId"`
+	StudentId int `json:"student_id"`
+	PlaceId int `json:"place_id"`
 }
 
 func ParticipationAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int, _perPage int, _sortDir string, _sortField string) ([]Participation, error) {

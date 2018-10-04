@@ -9,8 +9,8 @@ type Place struct {
 	gorm.Model
 	Name             string `gorm:"column:name"`
 	Location string
-	PeopleCountLimit int `gorm:"column:peopleCountLimit"`
-	EventId int  `gorm:"column:eventId"`
+	PeopleCountLimit int `json:"people_count_limit"`
+	EventId int `json:"event_id"`
 }
 
 func PlaceAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int, _perPage int, _sortDir string, _sortField string) ([]Place, error) {

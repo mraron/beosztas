@@ -10,8 +10,8 @@ type Event struct {
 	gorm.Model
 	Name string
 	Comment string
-	StartDate time.Time
-	EndDate time.Time
+	StartDate time.Time `json:"start_date"`
+	EndDate time.Time `json:"end_date"`
 	Public bool
 }
 

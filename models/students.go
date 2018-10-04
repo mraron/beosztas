@@ -9,7 +9,7 @@ type Student struct {
 	gorm.Model
 	Name string
 	OM string `gorm:"column:OM"`
-	ClassId int `gorm:"column:classId"`
+	ClassId int `json:"class_id"`
 }
 
 func StudentAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int, _perPage int, _sortDir string, _sortField string) ([]Student, error) {
@@ -18,7 +18,11 @@ func StudentAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int, _per
 	tmp := db.Order(_sortField+" "+_sortDir).Limit(_perPage).Offset(_perPage*(_page-1))
 
 	for column, value := range _filters {
-		tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
+		if column == "class_id" {
+			tmp = tmp.Where(column+" like ?", fmt.Sprintf("%v", value))
+		}else {
+			tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
+		}
 	}
 
 	err := tmp.Find(&ans).Error

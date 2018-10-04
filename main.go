@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"io"
@@ -133,14 +134,17 @@ func loadConfig() {
 }
 
 func main() {
+	log.Print("loading config")
 	loadConfig()
 
+	log.Print("connecting to db")
 	connectToDB()
 	models.SetDB(db)
 
 	st := new(models.Student)
 	db.First(st)
 
+	log.Print("populating echo web framework")
 	e := echo.New()
 
 	e.Use(middleware.Logger())
@@ -186,7 +190,7 @@ func main() {
 		}
 
 		places := make([]models.Place, 0)
-		err = db.Where("eventId = ?", eventId).Find(&places).Error
+		err = db.Where("event_id = ?", eventId).Find(&places).Error
 
 		if err != nil{
 			panic(err)
@@ -235,7 +239,7 @@ func main() {
 		}
 
 		participations := make([]models.Participation, 0)
-		err = db.Where("placeId = ?", place.ID).Find(&participations).Error
+		err = db.Where("place_id = ?", place.ID).Find(&participations).Error
 		if err != nil {
 			panic(err)
 		}
@@ -339,7 +343,7 @@ func main() {
 			participation.PlaceId = int(place.ID)
 
 			ps := make([]models.Participation, 0)
-			db.Where("studentId = ?", student.ID).First(&ps)
+			db.Where("student_id = ?", student.ID).First(&ps)
 			existsInThisEvent := false
 
 			for _, val := range ps {
@@ -350,7 +354,7 @@ func main() {
 			}
 
 			if existsInThisEvent {
-				errors = append(errors, "Ugyanabban az eseményben nem jelentkezhetsz különböző helyszínekre.")
+				errors = append(errors, "Ugyanabban az eseményben nem jelentkezhetsz kétszer vagy különböző helyszínekre.")
 			}else {
 				err = db.Save(participation).Error
 				if err != nil {
