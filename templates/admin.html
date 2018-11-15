@@ -130,7 +130,8 @@
         Participation.listView().fields([
             nga.field('ID'),
             nga.field('student_id', 'reference').label('Tanuló').targetEntity(Student).targetField(nga.field('Name')),
-            nga.field('place_id', 'reference').label('Helyszín').targetEntity(Place).targetField(nga.field('Name'))
+            nga.field('place_id', 'reference').label('Helyszín').targetEntity(Place).targetField(nga.field('Name')),
+            nga.field('class_id', 'reference').label('Osztály').targetEntity(Class).targetField(nga.field('Name'))
 
         ]).listActions(['edit']).filters([
             nga.field('student_id', 'reference').label('Tanuló').targetEntity(Student).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),

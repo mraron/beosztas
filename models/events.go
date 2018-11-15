@@ -1,17 +1,17 @@
 package models
 
 import (
-	"time"
-	"github.com/jinzhu/gorm"
 	"fmt"
+	"github.com/jinzhu/gorm"
+	"time"
 )
 
 type Event struct {
 	gorm.Model
 	Name string
 	Comment string
-	StartDate time.Time `json:"start_date"`
-	EndDate time.Time `json:"end_date"`
+	StartDate time.Time
+	EndDate time.Time
 	Public bool
 }
 

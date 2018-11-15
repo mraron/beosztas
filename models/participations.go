@@ -9,6 +9,7 @@ type Participation struct {
 	gorm.Model
 	StudentId int `json:"student_id"`
 	PlaceId int `json:"place_id"`
+	ClassId uint `json:"class_id"`
 }
 
 func ParticipationAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int, _perPage int, _sortDir string, _sortField string) ([]Participation, error) {
@@ -23,6 +24,10 @@ func ParticipationAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int
 	err := tmp.Find(&ans).Error
 	if err != nil {
 		return nil, err
+	}
+
+	for ind, _ := range ans {
+		ans[ind].ClassId = ans[ind].Class().ID
 	}
 
 	return ans, nil
@@ -62,3 +67,10 @@ func (p *Participation) Place() *Place {
 	return place
 }
 
+func (p *Participation) Class() *Class {
+	class := new(Class)
+	class.ID = uint(p.Student().ClassId)
+
+	db.First(class)
+	return class
+}
