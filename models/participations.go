@@ -18,7 +18,26 @@ func ParticipationAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int
 	tmp := db.Order(_sortField+" "+_sortDir).Limit(_perPage).Offset(_perPage*(_page-1))
 
 	for column, value := range _filters {
-		tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
+		if column == "class_id" {
+			mindenki := make([]Student, 0)
+
+			db.Where("class_id=?",value).Find(&mindenki)
+
+			mi, mx := mindenki[0].ID, mindenki[0].ID
+
+			for _, val := range mindenki {
+				if mi > val.ID {
+					mi = val.ID
+				}
+				if mx < val.ID {
+					mx=val.ID
+				}
+			}
+
+			tmp = tmp.Where("student_id<=?", mx).Where("?<=student_id", mi)
+		}else {
+			tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
+		}
 	}
 
 	err := tmp.Find(&ans).Error
