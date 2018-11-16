@@ -135,7 +135,8 @@
 
         ]).listActions(['edit']).filters([
             nga.field('student_id', 'reference').label('Tanuló').targetEntity(Student).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),
-            nga.field('place_id', 'reference').label('Helyszín').targetEntity(Place).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true)
+            nga.field('place_id', 'reference').label('Helyszín').targetEntity(Place).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),
+	    nga.field('class_id', 'reference').label('Osztály').targetEntity(Class).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true)
         ]);
 
         Participation.creationView().fields([
