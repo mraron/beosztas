@@ -121,9 +121,7 @@
 
         Place.editionView().fields(Place.creationView().fields());
 
-        admin.addEntity(Place)
-
-
+        admin.addEntity(Place);
 
         var Participation = nga.entity("participations").identifier(nga.field('ID')).label("Részvételek");
 
@@ -131,22 +129,24 @@
             nga.field('ID'),
             nga.field('student_id', 'reference').label('Tanuló').targetEntity(Student).targetField(nga.field('Name')),
             nga.field('place_id', 'reference').label('Helyszín').targetEntity(Place).targetField(nga.field('Name')),
-            nga.field('class_id', 'reference').label('Osztály').targetEntity(Class).targetField(nga.field('Name'))
-
+            nga.field('class_id', 'reference').label('Osztály').targetEntity(Class).targetField(nga.field('Name')),
+            nga.field('validated', 'boolean').label('Ellenőrzött')
         ]).listActions(['edit']).filters([
             nga.field('student_id', 'reference').label('Tanuló').targetEntity(Student).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),
             nga.field('place_id', 'reference').label('Helyszín').targetEntity(Place).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),
-	    nga.field('class_id', 'reference').label('Osztály').targetEntity(Class).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true)
+            nga.field('class_id', 'reference').label('Osztály').targetEntity(Class).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),
+            nga.field('validated', 'boolean').label('Ellenőrzött').choices([ { value: true, label: 'Ellenőrzött' }, { value: false, label: 'Nem ellenőrzött' } ])
         ]);
 
         Participation.creationView().fields([
             nga.field('student_id', 'reference').label('Tanuló').targetEntity(Student).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),
-            nga.field('place_id', 'reference').label('Helyszín').targetEntity(Place).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true)
+            nga.field('place_id', 'reference').label('Helyszín').targetEntity(Place).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),
+            nga.field('validated', 'boolean').label('Ellenőrzött').choices([ { value: true, label: 'Ellenőrzött' }, { value: false, label: 'Nem ellenőrzött' } ])
         ]);
 
         Participation.editionView().fields(Participation.creationView().fields());
 
-        admin.addEntity(Participation)
+        admin.addEntity(Participation);
 
         /*Event.creationView().fields([
             nga.field('Index', 'number').validation({required: true}),

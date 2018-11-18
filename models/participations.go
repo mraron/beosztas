@@ -10,6 +10,7 @@ type Participation struct {
 	StudentId int `json:"student_id"`
 	PlaceId int `json:"place_id"`
 	ClassId uint `json:"class_id"`
+	Validated bool `json:"validated"  gorm:"default:FALSE" gorm:"NOT NULL"`
 }
 
 func ParticipationAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int, _perPage int, _sortDir string, _sortField string) ([]Participation, error) {

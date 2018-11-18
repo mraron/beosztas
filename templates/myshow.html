@@ -1,0 +1,12 @@
+{{template "header" .}}
+Milyen helyszínekre jelentkeztem eddig:<br><br>
+<table class="table table-responsive table-condensed">
+    <thead>
+    <tr><td>Helyszín</td><td>Megerősítve</td></tr>
+    </thead>
+    {{$nev := .Data.Nev}}
+    {{$om := .Data.OM}}
+{{range $i := .Data.Ans}}
+<tr><td>{{$i.Place.Name}}</td><td>{{if $i.Validated}}Igen{{else}}Nem  <form action="/my/delete" method="post"><input type="hidden" name="nev" value="{{$nev}}"><input type="hidden" name="om" value="{{$om}}"><input type="hidden" name="del" value="{{$i.ID}}"><input type="hidden" name="redirect" value="/my/show/?name={{$nev}}&om={{$om}}"><button class="btn btn-danger">Visszavon</button></form>{{end}}</td></tr>{{end}}
+</table>
+{{template "footer" .}}

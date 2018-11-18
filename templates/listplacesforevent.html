@@ -15,7 +15,7 @@
             </div>
 
             <div class="pull-right">
-                <a href="/participants/{{$i.EventId}}/{{$i.ID}}" type="button" class="btn btn-primary">Eddig jelentkezők</a>
+                <!--HA HEKKER GYEREK VAGY!!! <a href="/participants/{{$i.EventId}}/{{$i.ID}}" type="button" class="btn btn-primary">Eddig jelentkezők</a>-->
                 <a href="{{if lt $i.GetPeopleCount $i.PeopleCountLimit}}/join/{{$i.EventId}}/{{$i.ID}}{{else}}#{{end}}" type="button" class="btn btn-success" {{if lt $i.GetPeopleCount $i.PeopleCountLimit}}{{else}}disabled{{end}}>Kiválasztás</a>
             </div>
         </div>

@@ -42,7 +42,7 @@ func getParticipations(c echo.Context) error {
 func putParticipation(c echo.Context) error {
 	var err error
 
-	object := new(models.Place)
+	object := new(models.Participation)
 	if err := c.Bind(object); err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}

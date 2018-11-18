@@ -1,20 +1,21 @@
 package main
 
 import (
-	"log"
+	"./models"
+	"encoding/json"
+	"fmt"
+	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"io"
-	"html/template"
-	"path/filepath"
-	"net/http"
 	_ "github.com/mattn/go-sqlite3"
-	"strconv"
-	"./models"
-	"github.com/jinzhu/gorm"
-	"encoding/json"
-	"time"
+	"html/template"
+	"io"
+	"log"
+	"net/http"
 	"os"
+	"path/filepath"
+	"strconv"
+	"time"
 )
 
 var (
@@ -169,6 +170,56 @@ func main() {
 
 	e.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "home.html", nil)
+	})
+
+	e.GET("/my", func(c echo.Context) error {
+		err := string(c.QueryParam("error"))
+		if err != "" {
+			fmt.Printf("%q\n", err)
+			return c.Render(http.StatusOK, "my.html", err)
+		}
+
+		return c.Render(http.StatusOK, "my.html", nil)
+	})
+
+	e.GET("/my/show/", func(c echo.Context) error {
+		nev := c.QueryParam("name")
+		om := c.QueryParam("om")
+
+		ember := models.Student{}
+		db.Where("name = ?", nev).Where("OM = ?", om).Find(&ember)
+
+		fmt.Println(ember, "!!")
+
+		ans := make([]models.Participation, 0)
+		db.Where("student_id = ?", ember.ID).Find(&ans)
+		return c.Render(http.StatusOK, "myshow.html", struct {
+			Ans []models.Participation
+			Nev string
+			OM string
+		}{ans, nev, om})
+	})
+
+	e.POST("/my/delete", func(c echo.Context) error {
+		del := c.FormValue("del")
+		nev := c.FormValue("nev")
+		om := c.FormValue("om")
+
+		fmt.Println("töröl", del, nev, om)
+
+		student := models.Student{}
+
+		db.Where("name = ?", nev).Where("OM = ?", om).Find(&student)
+
+		part := models.Participation{}
+
+		db.Where("ID = ?", del).Find(&part)
+
+		if uint(part.StudentId) == student.ID {
+			db.Where("ID = ?", del).Delete(models.Participation{})
+		}
+
+		return c.Redirect(http.StatusFound, c.FormValue("redirect"))
 	})
 
 	e.GET("/events", func(c echo.Context) error {

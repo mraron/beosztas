@@ -1,0 +1,13 @@
+{{template "header" .}}
+{{if .Data}}
+Hiba {{.Data}}
+<br>
+{{end}}
+Milyen helyszínekre jelentkeztem eddig:<br><br>
+<form action="/my/show/" method="get">
+    Név: <input type="text" name="name" class="form-control">
+    OM: <input type="text" name="om" class="form-control">
+    <br>
+    <button class="btn btn-primary">Keres</button>
+</form>
+{{template "footer" .}}
