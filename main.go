@@ -189,6 +189,10 @@ func main() {
 		ember := models.Student{}
 		db.Where("name = ?", nev).Where("OM = ?", om).Find(&ember)
 
+		if ember.ID==0 {
+			return c.Render(http.StatusOK, "my.html", "nincs ilyen név-om pár.")
+		}
+
 		fmt.Println(ember, "!!")
 
 		ans := make([]models.Participation, 0)

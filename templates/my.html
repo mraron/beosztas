@@ -1,7 +1,7 @@
 {{template "header" .}}
 {{if .Data}}
-Hiba {{.Data}}
-<br>
+<div class="alert alert-danger" role="alert">Hiba {{.Data}}</div>
+
 {{end}}
 Milyen helyszínekre jelentkeztem eddig:<br><br>
 <form action="/my/show/" method="get">
