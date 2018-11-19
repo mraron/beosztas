@@ -8,12 +8,6 @@
 {{end}}
 {{end}}
 {{if lt .Data.Place.GetPeopleCount .Data.Place.PeopleCountLimit}}
-<form action="/join/{{.Data.EventId}}/{{.Data.PlaceId}}" method="post">
-    Név: <input type="text" name="Name" class="form-control"> <br>
-    OM azonosító: <input type="text" name="OM" class="form-control"> <br>
-    <br>
-    <input type="submit" class="btn btn-primary"> <br>
-</form>
 {{else}}
     <div class="alert alert-warning" role="alert">Ez az helyszín már betelt, válassz másikat!</div>
 {{end}}

@@ -52,3 +52,12 @@ func (p *Place) GetPeopleCount() int {
 	db.Model(new(Participation)).Where("place_id = ?", p.ID).Count(&count)
 	return count
 }
+
+func (s *Place) Event() *Event {
+	event := new(Event)
+	event.ID = uint(s.EventId)
+	db.First(event)
+
+	return event
+}
+

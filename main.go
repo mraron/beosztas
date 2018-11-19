@@ -4,12 +4,15 @@ import (
 	"./models"
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/sessions"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/middleware"
 	_ "github.com/mattn/go-sqlite3"
 	"html/template"
 	"io"
+	"github.com/SaidinWoT/timespan"
 	"log"
 	"net/http"
 	"os"
@@ -107,6 +110,31 @@ func parseUint(str string) (uint, error) {
 	return uint(res), nil
 }
 
+func currentStudent(c echo.Context) (*models.Student, error) {
+	var (
+		u   *models.Student = &models.Student{}
+		err error
+	)
+
+	storage, err := session.Get("student", c)
+	if err != nil {
+		panic(err)
+	}
+
+	if _, ok := storage.Values["id"]; !ok {
+		return nil, nil
+	}
+
+	db.Where("ID=?", storage.Values["id"]).First(u)
+
+	return u, err
+}
+
+func internalError(c echo.Context, err error, msg string) error {
+	c.Logger().Print("internal error:", err)
+	return c.Render(http.StatusInternalServerError, "error.html", msg)
+}
+
 func loadConfig() {
 	f, err := os.Open("config.json")
 	if err != nil {
@@ -166,25 +194,87 @@ func main() {
 
 	e.Renderer = t
 
+	e.Use(session.Middleware(sessions.NewCookieStore([]byte("titkosdolog"))))
+	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+
+			user, err := currentStudent(c)
+			fmt.Println(user, err)
+			if err != nil {
+				return internalError(c, err, "belső hiba")
+			}
+
+			c.Set("student", user)
+			fmt.Println(c.Get("student"))
+			return next(c)
+		}
+	})
+
 	e.Static("/static", "public")
 
 	e.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "home.html", nil)
 	})
 
-	e.GET("/my", func(c echo.Context) error {
-		err := string(c.QueryParam("error"))
-		if err != "" {
-			fmt.Printf("%q\n", err)
-			return c.Render(http.StatusOK, "my.html", err)
+	e.GET("/login", func(c echo.Context) error {
+		if c.Get("student") == nil || c.Get("student").(*models.Student)==nil  {
+			return c.Render(http.StatusOK, "login.html", nil)
 		}
 
-		return c.Render(http.StatusOK, "my.html", nil)
+		return c.Redirect(http.StatusFound, "/")
+	})
+
+	e.POST("/login", func(c echo.Context) error {
+		if c.Get("student") != nil && c.Get("student").(*models.Student)!=nil  {
+			return c.Redirect(http.StatusFound, "/")
+		}
+
+		name, om := c.FormValue("name"), c.FormValue("om")
+		ember := models.Student{}
+		db.Where("name = ?", name).Where("OM = ?", om).First(&ember)
+
+		if ember.ID==0 {
+			return c.Render(http.StatusOK, "login.html", "nincs ilyen név-om pár.")
+		}
+
+		storage, _ := session.Get("student", c)
+		storage.Values["id"] = ember.ID
+
+		if err := storage.Save(c.Request(), c.Response()); err != nil {
+			return internalError(c, err, "Belső hiba #2")
+		}
+
+		c.Set("student", ember)
+
+
+		return c.Redirect(http.StatusFound, "/")
+	})
+
+	e.GET("/logout", func(c echo.Context) error {
+		if c.Get("student") == nil || c.Get("student").(*models.Student)==nil  {
+			return c.Redirect(http.StatusFound, "/login")
+		}
+
+		storage, _ := session.Get("student", c)
+		storage.Options.MaxAge = -1
+		storage.Values["id"] = -1
+
+		if err := storage.Save(c.Request(), c.Response()); err != nil {
+			return internalError(c, err, "Belső hiba")
+		}
+
+		return c.Redirect(http.StatusFound, "/")
 	})
 
 	e.GET("/my/show/", func(c echo.Context) error {
-		nev := c.QueryParam("name")
-		om := c.QueryParam("om")
+		fmt.Println( c.Get("student") == nil, "%!3453453454354353453453453")
+		if c.Get("student") == nil || c.Get("student").(*models.Student)==nil {
+			return c.Redirect(http.StatusFound, "/login")
+		}
+
+		s := c.Get("student").(*models.Student)
+
+		nev, om := s.Name, s.OM
 
 		ember := models.Student{}
 		db.Where("name = ?", nev).Where("OM = ?", om).Find(&ember)
@@ -204,12 +294,13 @@ func main() {
 		}{ans, nev, om})
 	})
 
-	e.POST("/my/delete", func(c echo.Context) error {
-		del := c.FormValue("del")
+	e.POST("/my/action", func(c echo.Context) error {  //@TODO lul it's shiet
+		action := c.FormValue("action")
+		id := c.FormValue("id")
 		nev := c.FormValue("nev")
 		om := c.FormValue("om")
 
-		fmt.Println("töröl", del, nev, om)
+		fmt.Println("action", id, action, nev, om)
 
 		student := models.Student{}
 
@@ -217,10 +308,15 @@ func main() {
 
 		part := models.Participation{}
 
-		db.Where("ID = ?", del).Find(&part)
+		db.Where("ID = ?", id).Find(&part)
 
 		if uint(part.StudentId) == student.ID {
-			db.Where("ID = ?", del).Delete(models.Participation{})
+			if action=="del" {
+				db.Where("ID = ?", id).Delete(models.Participation{})
+			}else {
+				part.Validated = true
+				db.Save(&part)
+			}
 		}
 
 		return c.Redirect(http.StatusFound, c.FormValue("redirect"))
@@ -306,7 +402,7 @@ func main() {
 		}{event, place, participations})
 	})
 
-	e.GET("/join/:eventid/:placeid", func(c echo.Context) error {
+	/*e.GET("/join/:eventid/:placeid", func(c echo.Context) error {
 		placeid := c.Param("placeid")
 		placeId, err := strconv.Atoi(placeid)
 		if err != nil {
@@ -342,12 +438,15 @@ func main() {
 			PlaceId string
 			Errors []string
 		}{event, place,c.Param("eventid"), c.Param("placeid"), []string{}})
-	})
+	})*/
 
 	e.POST("/join/:eventid/:placeid", func(c echo.Context) error {
-		Name := c.FormValue("Name")
-		OM := c.FormValue("OM")
+		if c.Get("student") == nil || c.Get("student").(*models.Student)==nil  {
+			return c.Redirect(http.StatusFound, "/login")
+		}
+		s := c.Get("student").(*models.Student)
 
+		Name, OM := s.Name, s.OM
 
 		placeid := c.Param("placeid")
 		placeId, err := strconv.Atoi(placeid)
@@ -398,24 +497,34 @@ func main() {
 			participation.PlaceId = int(place.ID)
 
 			ps := make([]models.Participation, 0)
-			db.Where("student_id = ?", student.ID).First(&ps)
-			existsInThisEvent := false
+			db.Where("student_id = ?", student.ID).Find(&ps)
+			ok := true
 
+			span := timespan.New(place.Event().StartDate, place.Event().EndDate.Sub(place.Event().StartDate))
+			fmt.Println(span)
+			fmt.Println(place.Event())
+			fmt.Println("???????????????????????????????")
 			for _, val := range ps {
-				if val.Place().EventId == eventId {
-					existsInThisEvent = true
+				akt := timespan.New(val.Place().Event().StartDate, val.Place().Event().EndDate.Sub(val.Place().Event().StartDate))
+				fmt.Println(akt)
+				fmt.Println(val.Place().Event())
+				huh, van := akt.Intersection(span)
+				fmt.Println(huh, van)
+				if  van {
+					ok = false
+					errors = append(errors, fmt.Sprintf("Ugyanabban az időpontban nem lehetsz két helyen is! Az ütköző helyszín %q és esemény %q.", val.Place().Name, val.Place().Event().Name))
 					break
 				}
 			}
 
-			if existsInThisEvent {
-				errors = append(errors, "Ugyanabban az eseményben nem jelentkezhetsz kétszer vagy különböző helyszínekre.")
+			if !ok {
+
 			}else {
 				err = db.Save(participation).Error
 				if err != nil {
 					panic(err)
 				}
-				return c.Redirect(http.StatusFound, "/participants/"+eventid+"/"+placeid)
+				return c.Redirect(http.StatusFound, fmt.Sprintf("/my/show/"))
 			}
 		}
 

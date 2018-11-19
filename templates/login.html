@@ -1,0 +1,12 @@
+{{template "header" .}}
+{{if .Data}}
+{{.Data}}
+{{end}}
+<form method="post" action="/login">
+    Név: <input type="text" name="name"><br>
+    OM: <input type="text" name="om"><br>
+    <br>
+    <input class="btn btn-default" type="submit" text="Bejelentkezés">
+</form>
+
+{{template "footer" .}}

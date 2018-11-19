@@ -16,7 +16,10 @@
 
             <div class="pull-right">
                 <!--HA HEKKER GYEREK VAGY!!! <a href="/participants/{{$i.EventId}}/{{$i.ID}}" type="button" class="btn btn-primary">Eddig jelentkezők</a>-->
-                <a href="{{if lt $i.GetPeopleCount $i.PeopleCountLimit}}/join/{{$i.EventId}}/{{$i.ID}}{{else}}#{{end}}" type="button" class="btn btn-success" {{if lt $i.GetPeopleCount $i.PeopleCountLimit}}{{else}}disabled{{end}}>Kiválasztás</a>
+                <form action="/join/{{$i.EventId}}/{{$i.ID}}" method="post">
+                    <button type="submit" class="btn btn-success" {{if lt $i.GetPeopleCount $i.PeopleCountLimit}}{{else}}disabled{{end}}>Kiválasztás</button>
+                </form>
+
             </div>
         </div>
     </div>
