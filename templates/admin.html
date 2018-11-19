@@ -133,10 +133,11 @@
             nga.field('validated', 'boolean').label('Ellenőrzött')
         ]).listActions(['edit']).filters([
             nga.field('student_id', 'reference').label('Tanuló').targetEntity(Student).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),
-            nga.field('place_id', 'reference').label('Helyszín').targetEntity(Place).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),
+            //nga.field('place_id', 'reference').label('Helyszín').targetEntity(Place).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),
             nga.field('class_id', 'reference').label('Osztály').targetEntity(Class).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true),
             nga.field('validated', 'boolean').label('Ellenőrzött').choices([ { value: true, label: 'Ellenőrzött' }, { value: false, label: 'Nem ellenőrzött' } ]),
-            nga.field('place_name', 'string').label('Helyszín név')
+            nga.field('place_name', 'string').label('Helyszín név'),
+            nga.field('event_id', 'reference').label("Esemény").targetEntity(Event).targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true)
         ]);
 
         Participation.creationView().fields([
