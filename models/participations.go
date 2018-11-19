@@ -36,6 +36,17 @@ func ParticipationAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int
 			}
 
 			tmp = tmp.Where("student_id<=?", mx).Where("?<=student_id", mi)
+		}else if column == "place_name" {
+			jo_placek := make([]Place, 0)
+			db.Where("name like ?", fmt.Sprintf("%%%v%%",value)).Find(&jo_placek)
+
+			fos := make([]uint, 0)
+			for _, kaki := range jo_placek {
+				fos = append(fos, kaki.ID)
+			}
+
+			tmp = tmp.Where("place_id in (?)", fos)
+
 		}else {
 			tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
 		}
@@ -59,7 +70,37 @@ func ParticipationAPIGetCount(db *gorm.DB, _filters map[string]interface{}, _pag
 	tmp := db.Model(&Participation{}).Order(_sortField+" "+_sortDir)
 
 	for column, value := range _filters {
-		tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
+		if column == "class_id" {
+			mindenki := make([]Student, 0)
+
+			db.Where("class_id=?",value).Find(&mindenki)
+
+			mi, mx := mindenki[0].ID, mindenki[0].ID
+
+			for _, val := range mindenki {
+				if mi > val.ID {
+					mi = val.ID
+				}
+				if mx < val.ID {
+					mx=val.ID
+				}
+			}
+
+			tmp = tmp.Where("student_id<=?", mx).Where("?<=student_id", mi)
+		}else if column == "place_name" {
+			jo_placek := make([]Place, 0)
+			db.Where("name like ?", fmt.Sprintf("%%%v%%",value)).Find(&jo_placek)
+
+			fos := make([]uint, 0)
+			for _, kaki := range jo_placek {
+				fos = append(fos, kaki.ID)
+			}
+
+			tmp = tmp.Where("place_id in (?)", fos)
+
+		}else {
+			tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
+		}
 	}
 
 	err := tmp.Count(&ans).Error

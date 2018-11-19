@@ -247,7 +247,7 @@ func main() {
 		c.Set("student", ember)
 
 
-		return c.Redirect(http.StatusFound, "/")
+		return c.Redirect(http.StatusFound, "/my/show/")
 	})
 
 	e.GET("/logout", func(c echo.Context) error {
