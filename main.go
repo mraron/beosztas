@@ -218,7 +218,15 @@ func main() {
 
 	e.GET("/login", func(c echo.Context) error {
 		if c.Get("student") == nil || c.Get("student").(*models.Student)==nil  {
-			return c.Render(http.StatusOK, "login.html", nil)
+			redirect := c.QueryParam("redirect")
+			if redirect == "" {
+				redirect="/"
+			}
+
+			return c.Render(http.StatusOK, "login.html", struct {
+				Redirect string
+				Error string
+			}{redirect, ""})
 		}
 
 		return c.Redirect(http.StatusFound, "/")
@@ -229,12 +237,21 @@ func main() {
 			return c.Redirect(http.StatusFound, "/")
 		}
 
+		redirect := c.FormValue("redirect")
+		if redirect == "" {
+			redirect="/"
+		}
+
 		name, om := c.FormValue("name"), c.FormValue("om")
 		ember := models.Student{}
+
 		db.Where("name = ?", name).Where("OM = ?", om).First(&ember)
 
 		if ember.ID==0 {
-			return c.Render(http.StatusOK, "login.html", "nincs ilyen név-om pár.")
+			return c.Render(http.StatusOK, "login.html", struct {
+				Redirect string
+				Error string
+			}{redirect, "Nincs ilyen név-om pár."})
 		}
 
 		storage, _ := session.Get("student", c)
@@ -246,8 +263,7 @@ func main() {
 
 		c.Set("student", ember)
 
-
-		return c.Redirect(http.StatusFound, "/my/show/")
+		return c.Redirect(http.StatusFound, redirect)
 	})
 
 	e.GET("/logout", func(c echo.Context) error {
@@ -269,7 +285,7 @@ func main() {
 	e.GET("/my/show/", func(c echo.Context) error {
 		fmt.Println( c.Get("student") == nil, "%!3453453454354353453453453")
 		if c.Get("student") == nil || c.Get("student").(*models.Student)==nil {
-			return c.Redirect(http.StatusFound, "/login")
+			return c.Redirect(http.StatusFound, "/login?redirect=/my/show/")
 		}
 
 		s := c.Get("student").(*models.Student)
@@ -280,7 +296,7 @@ func main() {
 		db.Where("name = ?", nev).Where("OM = ?", om).Find(&ember)
 
 		if ember.ID==0 {
-			return c.Render(http.StatusOK, "my.html", "nincs ilyen név-om pár.")
+			return c.Render(http.StatusOK, "my.html", "Nincs ilyen név-om pár.")
 		}
 
 		fmt.Println(ember, "!!")
@@ -442,7 +458,7 @@ func main() {
 
 	e.POST("/join/:eventid/:placeid", func(c echo.Context) error {
 		if c.Get("student") == nil || c.Get("student").(*models.Student)==nil  {
-			return c.Redirect(http.StatusFound, "/login")
+			return c.Redirect(http.StatusFound, "/login?redirect="+c.Request().RequestURI)
 		}
 		s := c.Get("student").(*models.Student)
 
