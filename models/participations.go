@@ -11,6 +11,7 @@ type Participation struct {
 	PlaceId int `json:"place_id"`
 	ClassId uint `json:"class_id"`
 	Validated bool `json:"validated"  gorm:"default:FALSE" gorm:"NOT NULL"`
+	EventId uint `gorm:"-" json:"event_id"`
 }
 
 func ParticipationAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int, _perPage int, _sortDir string, _sortField string) ([]Participation, error) {
@@ -70,6 +71,7 @@ func ParticipationAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int
 
 	for ind, _ := range ans {
 		ans[ind].ClassId = ans[ind].Class().ID
+		ans[ind].EventId = ans[ind].Event().ID
 	}
 
 	return ans, nil
@@ -156,4 +158,8 @@ func (p *Participation) Class() *Class {
 
 	db.First(class)
 	return class
+}
+
+func (p *Participation) Event() *Event {
+	return p.Place().Event()
 }
