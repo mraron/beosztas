@@ -59,6 +59,8 @@ func ParticipationAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int
 
 			tmp = tmp.Where("place_id in (?)", fos)
 
+		}else if column == "student_id" {
+			tmp = tmp.Where(column+"=?", value)
 		}else {
 			tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
 		}
@@ -122,6 +124,8 @@ func ParticipationAPIGetCount(db *gorm.DB, _filters map[string]interface{}, _pag
 
 			tmp = tmp.Where("place_id in (?)", fos)
 
+		}else if column == "student_id" {
+			tmp = tmp.Where(column+"=?", value)
 		}else {
 			tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
 		}

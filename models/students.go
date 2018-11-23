@@ -19,7 +19,7 @@ func StudentAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int, _per
 
 	for column, value := range _filters {
 		if column == "class_id" {
-			tmp = tmp.Where(column+" like ?", fmt.Sprintf("%v", value))
+			tmp = tmp.Where(column+" = ?", value)
 		}else {
 			tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
 		}
@@ -39,7 +39,11 @@ func StudentAPIGetCount(db *gorm.DB, _filters map[string]interface{}, _page int,
 	tmp := db.Model(&Student{}).Order(_sortField+" "+_sortDir)
 
 	for column, value := range _filters {
-		tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
+		if column == "class_id" {
+			tmp = tmp.Where(column+" = ?", value)
+		}else {
+			tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
+		}
 	}
 
 	err := tmp.Count(&ans).Error
