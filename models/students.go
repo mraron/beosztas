@@ -20,10 +20,6 @@ func StudentAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int, _per
 
 	tmp := db.Model(&Student{})
 
-	if _sortField != "Count" {
-		tmp = tmp.Order(_sortField + " " + _sortDir).Limit(_perPage).Offset(_perPage*(_page-1))
-	}
-
 	filter_column := -1
 
 	for column, value := range _filters {
@@ -37,6 +33,10 @@ func StudentAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int, _per
 		} else {
 			tmp = tmp.Where(column+" like ?", fmt.Sprintf("%%%v%%", value))
 		}
+	}
+
+	if _sortField != "Count" && filter_column == -1 {
+		tmp = tmp.Order(_sortField + " " + _sortDir).Limit(_perPage).Offset(_perPage*(_page-1))
 	}
 
 	err := tmp.Find(&ans).Error
@@ -61,23 +61,24 @@ func StudentAPIGet(db *gorm.DB, _filters map[string]interface{}, _page int, _per
 
 	if _sortField == "Count" {
 		sort.Slice(ans, func(i, j int) bool {
+			if ans[i].Count == ans[j].Count {
+				return ans[i].Name < ans[j].Name
+			}
+
 			if _sortDir == "ASC" {
 				return ans[i].Count < ans[j].Count
 			}
 
 			return ans[i].Count > ans[j].Count
 		})
-
-		lim := _perPage*_page
-		if lim > len(ans) {
-			lim = len(ans)
-		}
-
-		return ans[_perPage*(_page-1):lim], nil
 	}
 
+	lim := _perPage*_page
+	if lim > len(ans) {
+		lim = len(ans)
+	}
 
-	return ans, nil
+	return ans[_perPage*(_page-1):lim], nil
 }
 
 func StudentAPIGetCount(db *gorm.DB, _filters map[string]interface{}, _page int, _perPage int, _sortDir string, _sortField string) (int, error) {
