@@ -55,10 +55,12 @@
             nga.field('ID'),
             nga.field('Name').label('Név'),
             nga.field('OM').label('OM azonosító'),
+            nga.field('Count').label('Órák száma'),
             nga.field('class_id', 'reference').targetEntity(Class).label('Osztály').targetField(nga.field('Name')) //, 'reference').label('Osztály').targetEntity(Class)
         ]).listActions(['edit']).filters([
             nga.field('Name').label('Név'),
             nga.field('OM').label('OM azonosító'),
+            nga.field('Count', 'number').label('Órák száma'),
             nga.field('class_id', 'reference').targetEntity(Class).label('Osztály').targetField(nga.field('Name')).sortField('Name').sortDir('ASC').remoteComplete(true)
         ]);
 
